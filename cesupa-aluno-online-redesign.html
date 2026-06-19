@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CESUPA · Aluno Online — Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:      #0A1628;
+    --blue:      #1A6EBD;
+    --blue-lt:   #2D86D9;
+    --teal:      #00D4AA;
+    --teal-dk:   #00B899;
+    --bg:        #F4F7FB;
+    --white:     #FFFFFF;
+    --border:    #DDE4EF;
+    --text:      #1C2B40;
+    --muted:     #6B7A95;
+    --danger:    #E63946;
+    --warning:   #F4A226;
+    --success:   #27AE60;
+    --sidebar-w: 240px;
+    --header-h:  64px;
+    --radius:    12px;
+    --radius-sm: 8px;
+    --shadow:    0 2px 12px rgba(10,22,40,.08);
+    --shadow-md: 0 4px 24px rgba(10,22,40,.13);
+    font-family: 'Inter', sans-serif;
+  }
+
+  body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ─── HEADER ──────────────────────────────── */
+  .header {
+    position: fixed; top: 0; left: 0; right: 0; height: var(--header-h);
+    background: var(--navy); display: flex; align-items: center; padding: 0 24px;
+    gap: 16px; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,.25);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-mark {
+    width: 36px; height: 36px; background: var(--blue); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; color: #fff; font-size: 18px; letter-spacing: -1px;
+  }
+  .logo-text { color: #fff; font-size: 20px; font-weight: 700; letter-spacing: -.5px; }
+  .logo-text span { color: var(--teal); }
+  .header-spacer { flex: 1; }
+  .header-user {
+    display: flex; align-items: center; gap: 10px; color: #fff; font-size: 14px;
+  }
+  .avatar {
+    width: 36px; height: 36px; background: var(--teal); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: var(--navy); font-size: 14px;
+  }
+  .header-user-info { line-height: 1.3; }
+  .header-user-name { font-weight: 600; font-size: 13px; }
+  .header-user-sub { font-size: 11px; color: rgba(255,255,255,.55); }
+  .header-date { font-size: 12px; color: rgba(255,255,255,.45); margin-left: 8px; border-left: 1px solid rgba(255,255,255,.15); padding-left: 12px; }
+
+  /* ─── SIDEBAR ─────────────────────────────── */
+  .sidebar {
+    position: fixed; top: var(--header-h); left: 0; bottom: 0;
+    width: var(--sidebar-w); background: var(--white);
+    border-right: 1px solid var(--border); padding: 24px 0; overflow-y: auto;
+    z-index: 50;
+  }
+  .nav-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--muted); padding: 0 20px 8px; margin-top: 8px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 10px 20px;
+    cursor: pointer; color: var(--muted); font-size: 14px; font-weight: 500;
+    transition: all .15s; border-left: 3px solid transparent; margin: 1px 0;
+    text-decoration: none; background: none; border-top: none; border-right: none; border-bottom: none;
+    width: 100%; text-align: left;
+  }
+  .nav-item:hover { color: var(--blue); background: rgba(26,110,189,.06); }
+  .nav-item.active {
+    color: var(--blue); background: rgba(26,110,189,.1);
+    border-left-color: var(--blue); font-weight: 600;
+  }
+  .nav-icon {
+    width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  }
+  .nav-badge {
+    margin-left: auto; background: var(--danger); color: #fff;
+    font-size: 10px; font-weight: 700; border-radius: 10px; padding: 2px 6px; min-width: 18px; text-align: center;
+  }
+
+  /* ─── MAIN ────────────────────────────────── */
+  .main {
+    margin-left: var(--sidebar-w); margin-top: var(--header-h);
+    padding: 32px 36px; min-height: calc(100vh - var(--header-h));
+  }
+
+  /* ─── PAGE HEADER ─────────────────────────── */
+  .page-header { margin-bottom: 28px; }
+  .page-eyebrow { font-size: 11px; font-weight: 600; color: var(--teal); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 6px; }
+  .page-title { font-size: 26px; font-weight: 800; color: var(--navy); letter-spacing: -.5px; }
+  .page-subtitle { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+  /* ─── CARDS ───────────────────────────────── */
+  .card {
+    background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden;
+  }
+  .card-header {
+    padding: 18px 24px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .card-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+  .card-body { padding: 24px; }
+
+  /* ─── BUTTONS ─────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
+    border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer;
+    border: none; transition: all .15s; text-decoration: none; font-family: inherit;
+  }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: var(--blue-lt); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,110,189,.3); }
+  .btn-teal { background: var(--teal); color: var(--navy); }
+  .btn-teal:hover { background: var(--teal-dk); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,212,170,.3); }
+  .btn-outline { background: transparent; color: var(--blue); border: 1px solid var(--blue); }
+  .btn-outline:hover { background: rgba(26,110,189,.06); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-sm { padding: 7px 14px; font-size: 13px; }
+
+  /* ─── BADGES ──────────────────────────────── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px;
+    border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: .2px;
+  }
+  .badge-success { background: #E9F7EF; color: #1E8449; }
+  .badge-warning { background: #FEF9E7; color: #B7770D; }
+  .badge-danger  { background: #FDEDEC; color: #C0392B; }
+  .badge-info    { background: #EBF5FB; color: #1A5276; }
+  .badge-neutral { background: #F2F3F4; color: #566573; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ─── FORM ────────────────────────────────── */
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
+  .form-label span { color: var(--danger); }
+  .form-control {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); font-size: 14px; color: var(--text);
+    font-family: inherit; transition: border-color .15s, box-shadow .15s; background: var(--white);
+  }
+  .form-control:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,110,189,.12); }
+  .form-control::placeholder { color: var(--muted); }
+  textarea.form-control { resize: vertical; min-height: 100px; }
+  select.form-control { cursor: pointer; }
+  .form-hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* ─── TABLE ───────────────────────────────── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+    color: var(--muted); padding: 12px 16px; text-align: left;
+    border-bottom: 1px solid var(--border); background: var(--bg);
+  }
+  tbody tr { border-bottom: 1px solid #EDF0F7; transition: background .12s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(26,110,189,.03); }
+  tbody td { padding: 14px 16px; font-size: 14px; }
+  .td-link { color: var(--blue); font-weight: 600; cursor: pointer; text-decoration: none; }
+  .td-link:hover { text-decoration: underline; }
+
+  /* ─── TABS ────────────────────────────────── */
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 24px; }
+  .tab-btn {
+    padding: 10px 18px; font-size: 14px; font-weight: 500; color: var(--muted);
+    cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent;
+    margin-bottom: -2px; transition: all .15s; font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--blue); }
+  .tab-btn.active { color: var(--blue); font-weight: 600; border-bottom-color: var(--blue); }
+
+  /* ─── MODAL ───────────────────────────────── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(10,22,40,.55);
+    z-index: 200; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-md);
+    width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+  }
+  .modal-header {
+    padding: 20px 24px 18px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .modal-header-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .modal-title { font-size: 17px; font-weight: 700; color: var(--navy); }
+  .modal-subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .modal-close {
+    margin-left: auto; background: none; border: none; cursor: pointer; color: var(--muted);
+    padding: 4px; border-radius: 6px; font-size: 20px; line-height: 1;
+  }
+  .modal-close:hover { color: var(--text); background: var(--bg); }
+  .modal-body { padding: 24px; }
+  .modal-footer {
+    padding: 16px 24px; border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 10px;
+  }
+
+  /* ─── TOAST ───────────────────────────────── */
+  .toast-container { position: fixed; bottom: 28px; right: 28px; z-index: 300; display: flex; flex-direction: column; gap: 10px; }
+  .toast {
+    background: var(--navy); color: #fff; padding: 14px 20px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); min-width: 260px;
+    display: flex; align-items: center; gap: 12px; animation: slideUp .25s ease;
+    border-left: 4px solid var(--teal);
+  }
+  .toast.error { border-left-color: var(--danger); }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* ─── SEARCH BAR ──────────────────────────── */
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); padding: 0 14px; transition: border-color .15s, box-shadow .15s;
+  }
+  .search-bar:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,110,189,.12); }
+  .search-bar input { border: none; outline: none; flex: 1; padding: 11px 0; font-size: 14px; font-family: inherit; background: transparent; }
+  .search-bar select { border: none; outline: none; font-size: 13px; font-family: inherit; color: var(--muted); background: transparent; cursor: pointer; padding: 4px 0; }
+
+  /* ─── STATS ROW ───────────────────────────── */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--white); border-radius: var(--radius); padding: 18px 20px;
+    box-shadow: var(--shadow); border: 1px solid var(--border); cursor: default;
+  }
+  .stat-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .stat-value { font-size: 28px; font-weight: 800; color: var(--navy); line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--muted); margin-top: 5px; }
+  .stat-accent { width: 32px; height: 4px; border-radius: 2px; margin-bottom: 12px; }
+
+  /* ─── EMPTY STATE ─────────────────────────── */
+  .empty-state { text-align: center; padding: 48px 24px; }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: .5; }
+  .empty-title { font-size: 17px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .empty-sub { font-size: 14px; color: var(--muted); max-width: 300px; margin: 0 auto 20px; }
+
+  /* ─── PAGES ───────────────────────────────── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ─── PROGRESS STEP ───────────────────────── */
+  .steps { display: flex; align-items: center; gap: 0; margin-bottom: 32px; }
+  .step { display: flex; align-items: center; flex: 1; }
+  .step-dot {
+    width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--muted); background: var(--white); flex-shrink: 0;
+    transition: all .2s;
+  }
+  .step.done .step-dot { background: var(--teal); border-color: var(--teal); color: var(--navy); }
+  .step.active .step-dot { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .step-line { flex: 1; height: 2px; background: var(--border); transition: background .2s; }
+  .step.done .step-line { background: var(--teal); }
+  .step-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 6px; text-align: center; }
+  .step.active .step-label { color: var(--blue); }
+  .step-wrap { display: flex; flex-direction: column; align-items: center; }
+
+  /* ─── BOOK CARD ───────────────────────────── */
+  .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .book-card {
+    background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
+    padding: 18px; box-shadow: var(--shadow); transition: box-shadow .15s, transform .15s; cursor: pointer;
+  }
+  .book-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .book-cover {
+    width: 100%; aspect-ratio: 3/4; border-radius: 6px; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: center; font-size: 32px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  }
+  .book-title { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px; line-height: 1.35; }
+  .book-author { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .book-avail { font-size: 12px; font-weight: 600; }
+  .book-avail.ok { color: var(--success); }
+  .book-avail.no { color: var(--danger); }
+
+  /* ─── MESSAGE ITEM ────────────────────────── */
+  .msg-item {
+    display: flex; align-items: flex-start; gap: 14px; padding: 16px;
+    border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s;
+  }
+  .msg-item:hover { background: rgba(26,110,189,.04); }
+  .msg-item.unread { background: rgba(26,110,189,.05); }
+  .msg-avatar {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--blue);
+    display: flex; align-items: center; justify-content: center; font-weight: 700;
+    color: #fff; font-size: 15px; flex-shrink: 0;
+  }
+  .msg-body { flex: 1; min-width: 0; }
+  .msg-from { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+  .msg-subject { font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msg-item.unread .msg-subject { font-weight: 600; }
+  .msg-date { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+
+  /* ─── PROFESSOR MATERIAL ──────────────────── */
+  .material-item {
+    display: flex; align-items: center; gap: 16px; padding: 14px 16px;
+    border-bottom: 1px solid var(--border); transition: background .12s; cursor: pointer;
+  }
+  .material-item:hover { background: rgba(26,110,189,.04); }
+  .material-icon {
+    width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 20px; flex-shrink: 0;
+  }
+  .material-info { flex: 1; min-width: 0; }
+  .material-name { font-size: 14px; font-weight: 600; color: var(--navy); }
+  .material-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ─── OUVIDORIA FORM ──────────────────────── */
+  .ouvid-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .ouvid-type-card {
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 14px;
+    cursor: pointer; transition: all .15s; text-align: center;
+  }
+  .ouvid-type-card:hover { border-color: var(--blue); background: rgba(26,110,189,.04); }
+  .ouvid-type-card.selected { border-color: var(--blue); background: rgba(26,110,189,.08); }
+  .ouvid-type-icon { font-size: 24px; margin-bottom: 6px; }
+  .ouvid-type-label { font-size: 13px; font-weight: 600; color: var(--navy); }
+
+  /* ─── DIVIDER ─────────────────────────────── */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* ─── RESPONSIVE ──────────────────────────── */
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; padding: 20px 16px; }
+    .form-row { grid-template-columns: 1fr; }
+    .ouvid-type-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <a href="#" class="logo" onclick="navigate('home');return false;">
+    <div class="logo-mark">C</div>
+    <span class="logo-text">ces<span>upa</span></span>
+  </a>
+  <div class="header-spacer"></div>
+  <div class="header-user">
+    <div class="avatar">BA</div>
+    <div class="header-user-info">
+      <div class="header-user-name">Bernardo Abreu</div>
+      <div class="header-user-sub">Ciência da Computação · 25070018</div>
+    </div>
+    <div class="header-date">19/06/2026</div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div style="padding: 8px 0 16px;">
+    <div class="nav-section-label">Menu Principal</div>
+    <button class="nav-item" onclick="navigate('home')">
+      <span class="nav-icon">🏠</span> Início
+    </button>
+    <button class="nav-item" onclick="navigate('info')">
+      <span class="nav-icon">👤</span> Informações Cadastrais
+    </button>
+    <button class="nav-item" onclick="navigate('notas')">
+      <span class="nav-icon">📊</span> Notas e Frequência
+    </button>
+    <button class="nav-item" onclick="navigate('pagamentos')">
+      <span class="nav-icon">💳</span> Pagamentos
+    </button>
+    <button class="nav-item" onclick="navigate('horario')">
+      <span class="nav-icon">🗓</span> Horário de Aula
+    </button>
+  </div>
+  <div style="padding: 8px 0 16px;">
+    <div class="nav-section-label">Serviços — Redesign</div>
+    <button class="nav-item active" id="nav-protocolo" onclick="navigate('protocolo')">
+      <span class="nav-icon">📋</span> Protocolo Online
+    </button>
+    <button class="nav-item" id="nav-biblioteca" onclick="navigate('biblioteca')">
+      <span class="nav-icon">📚</span> Biblioteca
+    </button>
+    <button class="nav-item" id="nav-ouvidoria" onclick="navigate('ouvidoria')">
+      <span class="nav-icon">🔔</span> Ouvidoria
+    </button>
+    <button class="nav-item" id="nav-mensagem" onclick="navigate('mensagem')">
+      <span class="nav-icon">✉️</span> Mensagens
+      <span class="nav-badge" id="badge-msg">3</span>
+    </button>
+    <button class="nav-item" id="nav-material" onclick="navigate('material')">
+      <span class="nav-icon">📁</span> Material dos Profs.
+    </button>
+  </div>
+  <div style="padding: 8px 0 16px;">
+    <div class="nav-section-label">Acadêmico</div>
+    <button class="nav-item" onclick="navigate('declaracoes')">
+      <span class="nav-icon">📄</span> Declarações e Histórico
+    </button>
+    <button class="nav-item" onclick="navigate('atividade')">
+      <span class="nav-icon">⭐</span> Ativ. Complementares
+    </button>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- ══════════════════════════════════════════
+       1. PROTOCOLO ONLINE
+  ══════════════════════════════════════════ -->
+  <div id="page-protocolo" class="page active">
+    <div class="page-header">
+      <div class="page-eyebrow">Serviços Acadêmicos</div>
+      <h1 class="page-title">Protocolo Online</h1>
+      <p class="page-subtitle">Crie e acompanhe seus requerimentos de forma simples e rápida.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-accent" style="background:var(--blue)"></div>
+        <div class="stat-label">Total</div>
+        <div class="stat-value">3</div>
+        <div class="stat-sub">requerimentos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-accent" style="background:var(--success)"></div>
+        <div class="stat-label">Finalizados</div>
+        <div class="stat-value">3</div>
+        <div class="stat-sub">concluídos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-accent" style="background:var(--warning)"></div>
+        <div class="stat-label">Em Andamento</div>
+        <div class="stat-value">0</div>
+        <div class="stat-sub">em análise</div>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+      <div class="tabs" style="margin-bottom:0; border-bottom:none;">
+        <button class="tab-btn active" onclick="filterProtocolo('todos',this)">Todos</button>
+        <button class="tab-btn" onclick="filterProtocolo('andamento',this)">Em Andamento</button>
+        <button class="tab-btn" onclick="filterProtocolo('finalizados',this)">Finalizados</button>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('modal-new-req')">
+        <span>+</span> Novo Requerimento
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Número</th>
+              <th>Tipo</th>
+              <th>Data de Criação</th>
+              <th>Status</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="protocolo-tbody">
+            <tr data-status="finalizado">
+              <td><a class="td-link" onclick="openModal('modal-detalhe-req')">IN-14639/2026</a></td>
+              <td>Outro Tipo de Requerimento</td>
+              <td>16/06/2026 — 14:32</td>
+              <td><span class="badge badge-success"><span class="dot"></span>Finalizado</span></td>
+              <td><button class="btn btn-ghost btn-sm" onclick="openModal('modal-detalhe-req')">Ver detalhes</button></td>
+            </tr>
+            <tr data-status="finalizado">
+              <td><a class="td-link" onclick="openModal('modal-detalhe-req')">IN-26265/2025</a></td>
+              <td>Outro Tipo de Requerimento</td>
+              <td>02/11/2025 — 09:15</td>
+              <td><span class="badge badge-success"><span class="dot"></span>Finalizado</span></td>
+              <td><button class="btn btn-ghost btn-sm" onclick="openModal('modal-detalhe-req')">Ver detalhes</button></td>
+            </tr>
+            <tr data-status="finalizado">
+              <td><a class="td-link" onclick="openModal('modal-detalhe-req')">IN-16603/2025</a></td>
+              <td>Troca de Turma</td>
+              <td>21/07/2025 — 11:48</td>
+              <td><span class="badge badge-success"><span class="dot"></span>Finalizado</span></td>
+              <td><button class="btn btn-ghost btn-sm" onclick="openModal('modal-detalhe-req')">Ver detalhes</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2. BIBLIOTECA
+  ══════════════════════════════════════════ -->
+  <div id="page-biblioteca" class="page">
+    <div class="page-header">
+      <div class="page-eyebrow">Acervo Digital</div>
+      <h1 class="page-title">Biblioteca</h1>
+      <p class="page-subtitle">Pesquise, reserve e renove materiais do acervo CESUPA.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-body" style="padding:20px;">
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+          <div class="search-bar" style="flex:1; min-width:260px;">
+            <span>🔍</span>
+            <input type="text" id="bib-search" placeholder="Buscar por título, autor, ISBN, palavra-chave…" oninput="searchBooks()">
+            <select id="bib-filter">
+              <option value="todos">Todos os tipos</option>
+              <option value="livro">Livros</option>
+              <option value="artigo">Artigos</option>
+              <option value="tcc">TCCs</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="searchBooks()">Pesquisar</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+      <button class="btn btn-outline btn-sm" onclick="openModal('modal-emprestados')">📦 Itens Emprestados</button>
+      <button class="btn btn-outline btn-sm" onclick="openModal('modal-multas')">⚠️ Multas Pendentes</button>
+      <button class="btn btn-outline btn-sm">📋 Regimento e Normas</button>
+    </div>
+
+    <div id="bib-results-header" style="font-size:13px;color:var(--muted);margin-bottom:16px;"></div>
+    <div id="bib-results" class="book-grid"></div>
+
+    <div id="bib-empty" class="empty-state" style="display:none;">
+      <div class="empty-icon">📚</div>
+      <div class="empty-title">Nenhum resultado encontrado</div>
+      <div class="empty-sub">Tente outros termos de busca ou selecione um tipo diferente.</div>
+    </div>
+
+    <div id="bib-initial" style="text-align:center; padding:40px 20px; color:var(--muted);">
+      <div style="font-size:40px; margin-bottom:12px;">🔍</div>
+      <div style="font-size:15px; font-weight:600; color:var(--navy); margin-bottom:6px;">Pesquise o acervo</div>
+      <div style="font-size:14px;">Use a barra acima para buscar livros, artigos e materiais disponíveis.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       3. OUVIDORIA
+  ══════════════════════════════════════════ -->
+  <div id="page-ouvidoria" class="page">
+    <div class="page-header">
+      <div class="page-eyebrow">Canal de Comunicação</div>
+      <h1 class="page-title">Ouvidoria</h1>
+      <p class="page-subtitle">Registre sugestões, reclamações, elogios ou denúncias. Sua voz é importante.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
+      <div class="card" style="border-left:4px solid var(--teal);">
+        <div class="card-body" style="padding:20px;">
+          <div style="font-size:24px;margin-bottom:10px;">🔒</div>
+          <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">Sigilo garantido</div>
+          <div style="font-size:13px;color:var(--muted);">Sua identidade pode ser mantida em sigilo. O manifestante decide.</div>
+        </div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--blue);">
+        <div class="card-body" style="padding:20px;">
+          <div style="font-size:24px;margin-bottom:10px;">⏱</div>
+          <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">Prazo de resposta</div>
+          <div style="font-size:13px;color:var(--muted);">Todas as manifestações são respondidas em até 20 dias úteis.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h2 style="font-size:16px;font-weight:700;color:var(--navy);">Minhas Manifestações</h2>
+      <button class="btn btn-primary" onclick="openModal('modal-new-ouvid')">+ Nova Manifestação</button>
+    </div>
+
+    <div class="card">
+      <div class="empty-state">
+        <div class="empty-icon">🔔</div>
+        <div class="empty-title">Nenhuma manifestação registrada</div>
+        <div class="empty-sub">Quando você registrar uma manifestação, ela aparecerá aqui para acompanhamento.</div>
+        <button class="btn btn-primary" onclick="openModal('modal-new-ouvid')">Registrar agora</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       4. MENSAGEM ONLINE
+  ══════════════════════════════════════════ -->
+  <div id="page-mensagem" class="page">
+    <div class="page-header">
+      <div class="page-eyebrow">Comunicação Acadêmica</div>
+      <h1 class="page-title">Mensagens</h1>
+      <p class="page-subtitle">Troque mensagens com professores, coordenação e secretaria.</p>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div class="tabs" style="margin-bottom:0;border-bottom:none;">
+        <button class="tab-btn active" id="tab-recebidas" onclick="switchMsgTab('recebidas',this)">
+          Recebidas <span style="background:var(--danger);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 7px;margin-left:6px;">3</span>
+        </button>
+        <button class="tab-btn" id="tab-enviadas" onclick="switchMsgTab('enviadas',this)">Enviadas</button>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('modal-new-msg')">✉️ Nova Mensagem</button>
+    </div>
+
+    <div class="card" style="overflow:hidden;">
+      <!-- Caixa de entrada com mensagens de exemplo -->
+      <div id="inbox">
+        <div class="msg-item unread" onclick="openModal('modal-read-msg1')">
+          <div class="msg-avatar">PR</div>
+          <div class="msg-body">
+            <div class="msg-from">Prof. Ricardo Almeida</div>
+            <div class="msg-subject">📌 Trabalho Final — Prazo prorrogado para 30/06</div>
+          </div>
+          <div class="msg-date">Hoje 10:45</div>
+        </div>
+        <div class="msg-item unread" onclick="openModal('modal-read-msg2')">
+          <div class="msg-avatar" style="background:var(--teal);color:var(--navy);">SC</div>
+          <div class="msg-body">
+            <div class="msg-from">Secretaria Acadêmica</div>
+            <div class="msg-subject">📢 Matrícula 2026.2 — Início em 25/06/2026</div>
+          </div>
+          <div class="msg-date">Ontem 16:20</div>
+        </div>
+        <div class="msg-item unread" onclick="openModal('modal-read-msg3')">
+          <div class="msg-avatar" style="background:#9B59B6;color:#fff;">CO</div>
+          <div class="msg-body">
+            <div class="msg-from">Coordenação de Curso</div>
+            <div class="msg-subject">📋 Lembrete: Entrega do TCC — Formulário disponível</div>
+          </div>
+          <div class="msg-date">17/06 09:00</div>
+        </div>
+      </div>
+      <!-- Enviadas (oculto) -->
+      <div id="outbox" style="display:none;">
+        <div class="empty-state">
+          <div class="empty-icon">📤</div>
+          <div class="empty-title">Nenhuma mensagem enviada</div>
+          <div class="empty-sub">As mensagens que você enviar aparecerão aqui.</div>
+          <button class="btn btn-primary" onclick="openModal('modal-new-msg')">Enviar mensagem</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       5. MATERIAL DOS PROFESSORES
+  ══════════════════════════════════════════ -->
+  <div id="page-material" class="page">
+    <div class="page-header">
+      <div class="page-eyebrow">Conteúdo Acadêmico</div>
+      <h1 class="page-title">Material dos Professores</h1>
+      <p class="page-subtitle">Acesse slides, apostilas e materiais compartilhados pelos seus professores.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:start;">
+      <!-- Filtros -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">🎓 Filtrar</div></div>
+        <div class="card-body" style="padding:16px;">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">Período</label>
+            <select class="form-control" onchange="filterMaterial()">
+              <option value="">Selecione…</option>
+              <option selected value="7">7º Período</option>
+              <option value="8">8º Período</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Disciplina</label>
+            <select class="form-control" id="mat-disciplina" onchange="filterMaterial()">
+              <option value="">Todas as disciplinas</option>
+              <option selected value="ia">Inteligência Artificial</option>
+              <option value="so">Sistemas Operacionais</option>
+              <option value="bd">Banco de Dados II</option>
+              <option value="es">Eng. de Software</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de materiais -->
+      <div>
+        <div class="card">
+          <div class="card-header" style="justify-content:space-between;">
+            <div class="card-title" id="mat-disciplina-label">📖 Inteligência Artificial</div>
+            <span class="badge badge-info">4 arquivos</span>
+          </div>
+          <div id="mat-list">
+            <div class="material-item" onclick="downloadMaterial('Slides — Aula 1: Introdução à IA')">
+              <div class="material-icon" style="background:#EBF5FB;">📊</div>
+              <div class="material-info">
+                <div class="material-name">Slides — Aula 1: Introdução à IA</div>
+                <div class="material-meta">Prof. Carlos Mendes · PDF · 2.4 MB · 10/06/2026</div>
+              </div>
+              <button class="btn btn-ghost btn-sm">⬇ Baixar</button>
+            </div>
+            <div class="material-item" onclick="downloadMaterial('Apostila — Algoritmos de Busca')">
+              <div class="material-icon" style="background:#E9F7EF;">📄</div>
+              <div class="material-info">
+                <div class="material-name">Apostila — Algoritmos de Busca</div>
+                <div class="material-meta">Prof. Carlos Mendes · PDF · 5.1 MB · 12/06/2026</div>
+              </div>
+              <button class="btn btn-ghost btn-sm">⬇ Baixar</button>
+            </div>
+            <div class="material-item" onclick="downloadMaterial('Lista de Exercícios — Unidade 2')">
+              <div class="material-icon" style="background:#FEF9E7;">📝</div>
+              <div class="material-info">
+                <div class="material-name">Lista de Exercícios — Unidade 2</div>
+                <div class="material-meta">Prof. Carlos Mendes · DOCX · 180 KB · 15/06/2026</div>
+              </div>
+              <button class="btn btn-ghost btn-sm">⬇ Baixar</button>
+            </div>
+            <div class="material-item" onclick="downloadMaterial('Slides — Aula 2: Redes Neurais')">
+              <div class="material-icon" style="background:#EBF5FB;">📊</div>
+              <div class="material-info">
+                <div class="material-name">Slides — Aula 2: Redes Neurais</div>
+                <div class="material-meta">Prof. Carlos Mendes · PDF · 3.8 MB · 17/06/2026</div>
+              </div>
+              <button class="btn btn-ghost btn-sm">⬇ Baixar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Placeholders for other nav items -->
+  <div id="page-home" class="page">
+    <div class="page-header">
+      <div class="page-eyebrow">Bem-vindo de volta</div>
+      <h1 class="page-title">Olá, Bernardo 👋</h1>
+      <p class="page-subtitle">Acesse os serviços pelo menu lateral. Os redesigns estão na seção <strong>Serviços — Redesign</strong>.</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card" style="cursor:pointer" onclick="navigate('protocolo')">
+        <div class="stat-accent" style="background:var(--blue)"></div>
+        <div class="stat-label">Protocolo Online</div>
+        <div class="stat-value" style="font-size:20px">3 req.</div>
+        <div class="stat-sub" style="color:var(--blue);font-weight:600;">Clique para ver →</div>
+      </div>
+      <div class="stat-card" style="cursor:pointer" onclick="navigate('mensagem')">
+        <div class="stat-accent" style="background:var(--danger)"></div>
+        <div class="stat-label">Mensagens</div>
+        <div class="stat-value" style="font-size:20px">3 novas</div>
+        <div class="stat-sub" style="color:var(--blue);font-weight:600;">Clique para ver →</div>
+      </div>
+      <div class="stat-card" style="cursor:pointer" onclick="navigate('biblioteca')">
+        <div class="stat-accent" style="background:var(--teal)"></div>
+        <div class="stat-label">Biblioteca</div>
+        <div class="stat-value" style="font-size:20px">0 emprést.</div>
+        <div class="stat-sub" style="color:var(--blue);font-weight:600;">Clique para ver →</div>
+      </div>
+      <div class="stat-card" style="cursor:pointer" onclick="navigate('material')">
+        <div class="stat-accent" style="background:var(--warning)"></div>
+        <div class="stat-label">Material Prof.</div>
+        <div class="stat-value" style="font-size:20px">4 novos</div>
+        <div class="stat-sub" style="color:var(--blue);font-weight:600;">Clique para ver →</div>
+      </div>
+    </div>
+  </div>
+  <div id="page-info" class="page"><div class="page-header"><div class="page-eyebrow">Perfil</div><h1 class="page-title">Informações Cadastrais</h1><p class="page-subtitle">Esta seção não faz parte do redesign deste trabalho.</p></div></div>
+  <div id="page-notas" class="page"><div class="page-header"><div class="page-eyebrow">Acadêmico</div><h1 class="page-title">Notas e Frequência</h1><p class="page-subtitle">Esta seção não faz parte do redesign deste trabalho.</p></div></div>
+  <div id="page-pagamentos" class="page"><div class="page-header"><div class="page-eyebrow">Financeiro</div><h1 class="page-title">Pagamentos</h1><p class="page-subtitle">Esta seção não faz parte do redesign deste trabalho.</p></div></div>
+  <div id="page-horario" class="page"><div class="page-header"><div class="page-eyebrow">Grade</div><h1 class="page-title">Horário de Aula</h1><p class="page-subtitle">Esta seção não faz parte do redesign deste trabalho.</p></div></div>
+  <div id="page-declaracoes" class="page"><div class="page-header"><div class="page-eyebrow">Documentos</div><h1 class="page-title">Declarações e Histórico</h1><p class="page-subtitle">Esta seção não faz parte do redesign deste trabalho.</p></div></div>
+  <div id="page-atividade" class="page"><div class="page-header"><div class="page-eyebrow">Complementar</div><h1 class="page-title">Atividades Complementares</h1><p class="page-subtitle">Esta seção não faz parte do redesign deste trabalho.</p></div></div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════ -->
+
+<!-- Modal: Novo Requerimento -->
+<div id="modal-new-req" class="modal-overlay" onclick="closeModalOutside(event,'modal-new-req')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:rgba(26,110,189,.1);">📋</div>
+      <div>
+        <div class="modal-title">Novo Requerimento</div>
+        <div class="modal-subtitle">Preencha os campos abaixo para protocolar sua solicitação.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-new-req')">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Steps -->
+      <div class="steps" id="req-steps">
+        <div class="step-wrap">
+          <div class="step active" id="req-step1">
+            <div class="step-dot">1</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-label">Tipo</div>
+        </div>
+        <div class="step-wrap">
+          <div class="step" id="req-step2">
+            <div class="step-dot">2</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-label">Detalhes</div>
+        </div>
+        <div class="step-wrap">
+          <div class="step" id="req-step3">
+            <div class="step-dot">3</div>
+          </div>
+          <div class="step-label">Confirmar</div>
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="req-s1">
+        <div class="form-group">
+          <label class="form-label">Tipo de Requerimento <span>*</span></label>
+          <select class="form-control" id="req-tipo">
+            <option value="">Selecione o tipo…</option>
+            <option>Troca de Turma</option>
+            <option>Aproveitamento de Disciplina</option>
+            <option>Revisão de Nota</option>
+            <option>Cancelamento de Matrícula</option>
+            <option>Declaração Especial</option>
+            <option>Outro Tipo de Requerimento</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Justificativa Breve <span>*</span></label>
+          <textarea class="form-control" id="req-just" placeholder="Descreva o motivo da solicitação…"></textarea>
+          <div class="form-hint">Mín. 20 caracteres.</div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="req-s2" style="display:none">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Disciplina (se aplicável)</label>
+            <input class="form-control" type="text" placeholder="Ex: Algoritmos e Estruturas">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Período / Semestre</label>
+            <select class="form-control">
+              <option>2026.1</option>
+              <option>2026.2</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Documentação anexa</label>
+          <div style="border:2px dashed var(--border);border-radius:var(--radius-sm);padding:24px;text-align:center;cursor:pointer;color:var(--muted);font-size:13px;" onclick="toast('Função de upload disponível no sistema real.')">
+            <div style="font-size:28px;margin-bottom:8px;">📎</div>
+            Clique para anexar arquivos (PDF, JPG, PNG — máx. 5 MB)
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="req-s3" style="display:none">
+        <div style="background:var(--bg);border-radius:var(--radius-sm);padding:18px;margin-bottom:4px;">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:14px;font-weight:600;">RESUMO DO REQUERIMENTO</div>
+          <div style="display:flex;gap:10px;margin-bottom:10px;font-size:14px;">
+            <span style="color:var(--muted);width:120px;flex-shrink:0;">Tipo:</span>
+            <span id="req-confirm-tipo" style="font-weight:600;color:var(--navy)">—</span>
+          </div>
+          <div style="display:flex;gap:10px;font-size:14px;">
+            <span style="color:var(--muted);width:120px;flex-shrink:0;">Justificativa:</span>
+            <span id="req-confirm-just" style="font-weight:600;color:var(--navy)">—</span>
+          </div>
+        </div>
+        <div style="background:#E9F7EF;border-radius:var(--radius-sm);padding:12px 16px;margin-top:16px;font-size:13px;color:#1E8449;display:flex;gap:8px;align-items:center;">
+          ✅ Após a confirmação, você receberá um número de protocolo para acompanhar sua solicitação.
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="req-btn-back" class="btn btn-ghost" style="display:none" onclick="reqBack()">← Voltar</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-new-req')">Cancelar</button>
+      <button id="req-btn-next" class="btn btn-primary" onclick="reqNext()">Próximo →</button>
+      <button id="req-btn-submit" class="btn btn-teal" style="display:none" onclick="submitReq()">✅ Confirmar Envio</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Detalhe Requerimento -->
+<div id="modal-detalhe-req" class="modal-overlay" onclick="closeModalOutside(event,'modal-detalhe-req')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:#E9F7EF;">✅</div>
+      <div>
+        <div class="modal-title">IN-14639/2026</div>
+        <div class="modal-subtitle">Criado em 16/06/2026 · Finalizado</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-detalhe-req')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:20px;margin-bottom:20px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Tipo</div>
+          <div style="font-size:14px;font-weight:600;">Outro Tipo de Requerimento</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Status</div>
+          <span class="badge badge-success"><span class="dot"></span>Finalizado</span>
+        </div>
+      </div>
+      <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;font-size:14px;color:var(--muted);">
+        <strong>Resposta da secretaria:</strong> Solicitação analisada e aprovada conforme normativa vigente. Processo encerrado.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-detalhe-req')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Itens Emprestados -->
+<div id="modal-emprestados" class="modal-overlay" onclick="closeModalOutside(event,'modal-emprestados')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:#EBF5FB;">📦</div>
+      <div><div class="modal-title">Itens Emprestados</div></div>
+      <button class="modal-close" onclick="closeModal('modal-emprestados')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="empty-state" style="padding:30px;">
+        <div class="empty-icon">📦</div>
+        <div class="empty-title">Nenhum item emprestado</div>
+        <div class="empty-sub">Você não possui livros ou materiais retirados no momento.</div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-emprestados')">Fechar</button></div>
+  </div>
+</div>
+
+<!-- Modal: Multas -->
+<div id="modal-multas" class="modal-overlay" onclick="closeModalOutside(event,'modal-multas')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:#FDEDEC;">⚠️</div>
+      <div><div class="modal-title">Multas Pendentes</div></div>
+      <button class="modal-close" onclick="closeModal('modal-multas')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="empty-state" style="padding:30px;">
+        <div class="empty-icon">✅</div>
+        <div class="empty-title">Sem multas pendentes</div>
+        <div class="empty-sub">Ótimo! Você está em dia com a biblioteca.</div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-multas')">Fechar</button></div>
+  </div>
+</div>
+
+<!-- Modal: Nova Manifestação Ouvidoria -->
+<div id="modal-new-ouvid" class="modal-overlay" onclick="closeModalOutside(event,'modal-new-ouvid')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:rgba(0,212,170,.15);">🔔</div>
+      <div>
+        <div class="modal-title">Nova Manifestação</div>
+        <div class="modal-subtitle">Sua identidade será mantida em sigilo, se preferir.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-new-ouvid')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="ouvid-type-grid">
+        <div class="ouvid-type-card selected" onclick="selectOuvid(this,'Reclamação')">
+          <div class="ouvid-type-icon">😤</div>
+          <div class="ouvid-type-label">Reclamação</div>
+        </div>
+        <div class="ouvid-type-card" onclick="selectOuvid(this,'Sugestão')">
+          <div class="ouvid-type-icon">💡</div>
+          <div class="ouvid-type-label">Sugestão</div>
+        </div>
+        <div class="ouvid-type-card" onclick="selectOuvid(this,'Elogio')">
+          <div class="ouvid-type-icon">🙏</div>
+          <div class="ouvid-type-label">Elogio</div>
+        </div>
+        <div class="ouvid-type-card" onclick="selectOuvid(this,'Denúncia')">
+          <div class="ouvid-type-icon">🚨</div>
+          <div class="ouvid-type-label">Denúncia</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assunto <span>*</span></label>
+        <input class="form-control" type="text" id="ouvid-assunto" placeholder="Descreva brevemente o assunto…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição detalhada <span>*</span></label>
+        <textarea class="form-control" id="ouvid-desc" placeholder="Descreva sua manifestação com o máximo de detalhes possível…" style="min-height:120px;"></textarea>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg);border-radius:var(--radius-sm);">
+        <input type="checkbox" id="ouvid-anonimo" style="width:16px;height:16px;cursor:pointer;">
+        <label for="ouvid-anonimo" style="font-size:13px;font-weight:500;cursor:pointer;">Manter minha identidade em sigilo (manifestação anônima)</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-new-ouvid')">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitOuvid()">Enviar Manifestação</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nova Mensagem -->
+<div id="modal-new-msg" class="modal-overlay" onclick="closeModalOutside(event,'modal-new-msg')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:rgba(26,110,189,.1);">✉️</div>
+      <div><div class="modal-title">Nova Mensagem</div></div>
+      <button class="modal-close" onclick="closeModal('modal-new-msg')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Para <span>*</span></label>
+        <select class="form-control">
+          <option value="">Selecione o destinatário…</option>
+          <option>Prof. Carlos Mendes — Inteligência Artificial</option>
+          <option>Prof. Ricardo Almeida — Sistemas Operacionais</option>
+          <option>Secretaria Acadêmica</option>
+          <option>Coordenação de Ciência da Computação</option>
+          <option>Biblioteca Central</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assunto <span>*</span></label>
+        <input class="form-control" type="text" placeholder="Ex: Dúvida sobre trabalho final…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mensagem <span>*</span></label>
+        <textarea class="form-control" placeholder="Escreva sua mensagem aqui…" style="min-height:130px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-new-msg')">Cancelar</button>
+      <button class="btn btn-primary" onclick="sendMsg()">📤 Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Ler Mensagem 1 -->
+<div id="modal-read-msg1" class="modal-overlay" onclick="closeModalOutside(event,'modal-read-msg1')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="msg-avatar" style="width:40px;height:40px;font-size:15px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;">PR</div>
+      <div>
+        <div class="modal-title">Trabalho Final — Prazo prorrogado para 30/06</div>
+        <div class="modal-subtitle">Prof. Ricardo Almeida · Hoje 10:45</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-read-msg1')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;line-height:1.7;">Olá turma,<br><br>Informo que o prazo de entrega do Trabalho Final de Sistemas Operacionais foi <strong>prorrogado para o dia 30/06/2026</strong> às 23h59.<br><br>Aproveitem o tempo adicional para revisar a documentação e os testes. Qualquer dúvida, entrem em contato.<br><br>Atenciosamente,<br><strong>Prof. Ricardo Almeida</strong></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-read-msg1')">Fechar</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-read-msg1');openModal('modal-new-msg')">↩ Responder</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Ler Mensagem 2 -->
+<div id="modal-read-msg2" class="modal-overlay" onclick="closeModalOutside(event,'modal-read-msg2')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="msg-avatar" style="width:40px;height:40px;font-size:15px;border-radius:50%;background:var(--teal);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;">SC</div>
+      <div>
+        <div class="modal-title">Matrícula 2026.2 — Início em 25/06/2026</div>
+        <div class="modal-subtitle">Secretaria Acadêmica · Ontem 16:20</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-read-msg2')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;line-height:1.7;">Prezado aluno,<br><br>Informamos que o período de matrícula para o semestre <strong>2026.2</strong> terá início no dia <strong>25/06/2026</strong>. Acesse o módulo de matrícula no portal acadêmico.<br><br>Dúvidas? Procure a secretaria.<br><br><strong>Secretaria Acadêmica — CESUPA</strong></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-read-msg2')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Ler Mensagem 3 -->
+<div id="modal-read-msg3" class="modal-overlay" onclick="closeModalOutside(event,'modal-read-msg3')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="msg-avatar" style="width:40px;height:40px;font-size:15px;border-radius:50%;background:#9B59B6;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;">CO</div>
+      <div>
+        <div class="modal-title">Lembrete: Entrega do TCC — Formulário disponível</div>
+        <div class="modal-subtitle">Coordenação de Curso · 17/06 09:00</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-read-msg3')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;line-height:1.7;">Olá Bernardo,<br><br>O formulário de entrega do TCC já está disponível no sistema. Prazo final: <strong>10/07/2026</strong>.<br><br>Não se esqueça de submeter também o resumo e a folha de aprovação assinada pelo orientador.<br><br><strong>Coordenação — Ciência da Computação</strong></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-read-msg3')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Reserva de Livro -->
+<div id="modal-book-reserve" class="modal-overlay" onclick="closeModalOutside(event,'modal-book-reserve')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:rgba(0,212,170,.15);">📚</div>
+      <div>
+        <div class="modal-title" id="modal-book-title">Reservar Livro</div>
+        <div class="modal-subtitle" id="modal-book-author"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-book-reserve')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--bg);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:20px;font-size:14px;">
+        <div style="font-weight:600;color:var(--navy);margin-bottom:4px;" id="modal-book-avail-txt"></div>
+        <div style="color:var(--muted);font-size:13px;">Retirada na Biblioteca Central — Bloco A</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Data desejada para retirada</label>
+        <input class="form-control" type="date" value="2026-06-22">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-book-reserve')">Cancelar</button>
+      <button class="btn btn-teal" onclick="confirmReserve()">Confirmar Reserva</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toasts"></div>
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
+<script>
+// ─── Navigation ───────────────────────────────────────────────────────
+let currentPage = 'protocolo';
+const pages = ['home','info','notas','pagamentos','horario','protocolo','biblioteca','ouvidoria','mensagem','material','declaracoes','atividade'];
+
+function navigate(p) {
+  pages.forEach(id => {
+    const el = document.getElementById('page-' + id);
+    if (el) el.classList.remove('active');
+  });
+  const target = document.getElementById('page-' + p);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + p);
+  if (navEl) navEl.classList.add('active');
+  currentPage = p;
+  window.scrollTo(0,0);
+}
+
+// ─── Modal helpers ─────────────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'modal-new-req') resetReqSteps();
+}
+function closeModalOutside(e, id) {
+  if (e.target === document.getElementById(id)) closeModal(id);
+}
+
+// ─── Toast ─────────────────────────────────────────────────────────────
+function toast(msg, type='') {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' '+type : '');
+  t.innerHTML = `<span>${type==='error'?'❌':'✅'}</span> ${msg}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3600);
+}
+
+// ─── Protocolo steps ───────────────────────────────────────────────────
+let reqStep = 1;
+function resetReqSteps() {
+  reqStep = 1;
+  ['req-s1','req-s2','req-s3'].forEach((s,i) => {
+    document.getElementById(s).style.display = i===0 ? '' : 'none';
+  });
+  document.getElementById('req-btn-back').style.display = 'none';
+  document.getElementById('req-btn-next').style.display = '';
+  document.getElementById('req-btn-submit').style.display = 'none';
+  for (let i=1;i<=3;i++) {
+    const el = document.getElementById('req-step'+i);
+    el.classList.remove('active','done');
+    if(i===1) el.classList.add('active');
+  }
+}
+function reqNext() {
+  if (reqStep === 1) {
+    const tipo = document.getElementById('req-tipo').value;
+    const just = document.getElementById('req-just').value.trim();
+    if (!tipo) { toast('Selecione o tipo de requerimento.','error'); return; }
+    if (just.length < 20) { toast('A justificativa deve ter pelo menos 20 caracteres.','error'); return; }
+  }
+  if (reqStep < 3) {
+    document.getElementById('req-step'+reqStep).classList.remove('active');
+    document.getElementById('req-step'+reqStep).classList.add('done');
+    reqStep++;
+    document.getElementById('req-step'+reqStep).classList.add('active');
+    ['req-s1','req-s2','req-s3'].forEach((s,i) => {
+      document.getElementById(s).style.display = i===(reqStep-1) ? '' : 'none';
+    });
+    document.getElementById('req-btn-back').style.display = '';
+    if (reqStep === 3) {
+      document.getElementById('req-btn-next').style.display = 'none';
+      document.getElementById('req-btn-submit').style.display = '';
+      document.getElementById('req-confirm-tipo').textContent = document.getElementById('req-tipo').value;
+      document.getElementById('req-confirm-just').textContent = document.getElementById('req-just').value.trim();
+    }
+  }
+}
+function reqBack() {
+  if (reqStep > 1) {
+    document.getElementById('req-step'+reqStep).classList.remove('active');
+    reqStep--;
+    document.getElementById('req-step'+reqStep).classList.remove('done');
+    document.getElementById('req-step'+reqStep).classList.add('active');
+    ['req-s1','req-s2','req-s3'].forEach((s,i) => {
+      document.getElementById(s).style.display = i===(reqStep-1) ? '' : 'none';
+    });
+    document.getElementById('req-btn-next').style.display = '';
+    document.getElementById('req-btn-submit').style.display = 'none';
+    if (reqStep === 1) document.getElementById('req-btn-back').style.display = 'none';
+  }
+}
+function submitReq() {
+  const tipo = document.getElementById('req-tipo').value;
+  closeModal('modal-new-req');
+  const now = new Date();
+  const num = 'IN-' + Math.floor(10000+Math.random()*90000) + '/2026';
+  const tbody = document.getElementById('protocolo-tbody');
+  const tr = document.createElement('tr');
+  tr.setAttribute('data-status','andamento');
+  tr.innerHTML = `
+    <td><a class="td-link" onclick="openModal('modal-detalhe-req')">${num}</a></td>
+    <td>${tipo}</td>
+    <td>${now.toLocaleDateString('pt-BR')} — ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</td>
+    <td><span class="badge badge-warning"><span class="dot"></span>Em Andamento</span></td>
+    <td><button class="btn btn-ghost btn-sm" onclick="openModal('modal-detalhe-req')">Ver detalhes</button></td>
+  `;
+  tbody.insertBefore(tr, tbody.firstChild);
+  toast(`Requerimento ${num} protocolar com sucesso!`);
+}
+
+// ─── Protocolo filter ──────────────────────────────────────────────────
+function filterProtocolo(status, btn) {
+  document.querySelectorAll('.tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#protocolo-tbody tr').forEach(tr => {
+    if (status === 'todos') { tr.style.display = ''; return; }
+    const s = tr.getAttribute('data-status');
+    tr.style.display = (s === status) ? '' : 'none';
+  });
+}
+
+// ─── Biblioteca search ─────────────────────────────────────────────────
+const books = [
+  { title: 'Inteligência Artificial: Uma Abordagem Moderna', author: 'Russell & Norvig', emoji: '🤖', avail: true },
+  { title: 'Estruturas de Dados e Algoritmos em Java', author: 'Goodrich, Tamassia', emoji: '☕', avail: true },
+  { title: 'Engenharia de Software', author: 'Ian Sommerville', emoji: '🛠', avail: false },
+  { title: 'Clean Code', author: 'Robert C. Martin', emoji: '🧼', avail: true },
+  { title: 'Banco de Dados: Projeto e Implementação', author: 'Heuser', emoji: '🗄', avail: true },
+  { title: 'Sistemas Operacionais Modernos', author: 'Andrew Tanenbaum', emoji: '💻', avail: false },
+  { title: 'Redes de Computadores', author: 'Tanenbaum & Wetherall', emoji: '🌐', avail: true },
+  { title: 'Cálculo Vol. 1', author: 'James Stewart', emoji: '📐', avail: true },
+];
+function searchBooks() {
+  const q = document.getElementById('bib-search').value.toLowerCase().trim();
+  const results = q ? books.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q)) : books;
+  document.getElementById('bib-initial').style.display = 'none';
+  const grid = document.getElementById('bib-results');
+  const empty = document.getElementById('bib-empty');
+  if (!results.length) { grid.innerHTML=''; empty.style.display=''; document.getElementById('bib-results-header').textContent=''; return; }
+  empty.style.display = 'none';
+  document.getElementById('bib-results-header').textContent = `${results.length} resultado(s) encontrado(s)`;
+  grid.innerHTML = results.map(b => `
+    <div class="book-card" onclick="openBookModal('${b.title.replace(/'/g,"\\'")}','${b.author}','${b.avail}')">
+      <div class="book-cover"><span style="font-size:36px;">${b.emoji}</span></div>
+      <div class="book-title">${b.title}</div>
+      <div class="book-author">${b.author}</div>
+      <div class="book-avail ${b.avail?'ok':'no'}">${b.avail?'✅ Disponível':'❌ Indisponível'}</div>
+    </div>
+  `).join('');
+}
+function openBookModal(title, author, avail) {
+  document.getElementById('modal-book-title').textContent = title;
+  document.getElementById('modal-book-author').textContent = author;
+  document.getElementById('modal-book-avail-txt').textContent = avail === 'true' ? '✅ Disponível para retirada' : '❌ Indisponível no momento — entre na fila de espera';
+  openModal('modal-book-reserve');
+}
+function confirmReserve() {
+  closeModal('modal-book-reserve');
+  toast('Reserva realizada! Você tem 3 dias úteis para retirada.');
+}
+
+// ─── Ouvidoria ─────────────────────────────────────────────────────────
+let selectedOuvid = 'Reclamação';
+function selectOuvid(el, tipo) {
+  document.querySelectorAll('.ouvid-type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedOuvid = tipo;
+}
+function submitOuvid() {
+  const assunto = document.getElementById('ouvid-assunto').value.trim();
+  const desc = document.getElementById('ouvid-desc').value.trim();
+  if (!assunto) { toast('Preencha o assunto.','error'); return; }
+  if (desc.length < 10) { toast('Descreva melhor sua manifestação.','error'); return; }
+  closeModal('modal-new-ouvid');
+  toast(`Manifestação (${selectedOuvid}) registrada com sucesso! Protocolo: OUV-${Math.floor(1000+Math.random()*9000)}/2026`);
+}
+
+// ─── Mensagens ─────────────────────────────────────────────────────────
+function switchMsgTab(tab, btn) {
+  document.querySelectorAll('.tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('inbox').style.display = tab === 'recebidas' ? '' : 'none';
+  document.getElementById('outbox').style.display = tab === 'enviadas' ? '' : 'none';
+}
+function sendMsg() {
+  closeModal('modal-new-msg');
+  toast('Mensagem enviada com sucesso!');
+}
+
+// ─── Material ──────────────────────────────────────────────────────────
+function filterMaterial() {
+  const disc = document.getElementById('mat-disciplina');
+  const labels = {ia:'📖 Inteligência Artificial', so:'📖 Sistemas Operacionais', bd:'📖 Banco de Dados II', es:'📖 Eng. de Software'};
+  if(disc.value) document.getElementById('mat-disciplina-label').textContent = labels[disc.value] || '📖 Materiais';
+  toast('Materiais atualizados.');
+}
+function downloadMaterial(name) {
+  toast(`Download iniciado: "${name}"`);
+}
+
+// ─── Init ──────────────────────────────────────────────────────────────
+navigate('protocolo');
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+  }
+});
+</script>
+</body>
+</html>
