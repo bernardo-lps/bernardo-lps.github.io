@@ -1,1 +1,0 @@
-# bernardo-lps.github.io
